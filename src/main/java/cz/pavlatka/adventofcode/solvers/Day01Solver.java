@@ -49,8 +49,5 @@ public class Day01Solver {
         var sortedRight = right.stream().sorted().toList();
 
         return new Tuple<>(sortedLeft, sortedRight);
-
     }
-
-
 }
