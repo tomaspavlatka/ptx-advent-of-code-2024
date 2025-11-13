@@ -3,13 +3,10 @@ package cz.pavlatka.adventofcode.solvers;
 import cz.pavlatka.adventofcode.common.ResourceLineReader;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.util.Tuple;
-import tools.jackson.core.PrettyPrinter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Component
 @AllArgsConstructor
