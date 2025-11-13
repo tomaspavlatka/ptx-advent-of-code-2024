@@ -9,18 +9,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class Day01SolverTest {
     @Autowired
-    private Day01Solver solver;
+    Day01Solver solver;
 
     @Test
-    void testPart01() {
-        var result = solver.solve(1, true);
+    void testPart1() {
+        var result = solver.part1(true);
 
         assertThat(result).isEqualTo("11");
     }
 
     @Test
-    void testPart02() {
-        var result = solver.solve(2, false);
+    void solvePart1() {
+        var result = solver.part1(false);
 
         assertThat(result).isEqualTo("1320851");
     }

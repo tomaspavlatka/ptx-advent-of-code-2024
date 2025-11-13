@@ -15,7 +15,7 @@ public class Day01Solver {
     private final ResourceLineReader reader;
 
     @SneakyThrows
-    public String solve(int part, boolean sample) {
+    public String part1(boolean sample) {
         var left = new ArrayList<Integer>();
         var right = new ArrayList<Integer>();
 
@@ -35,4 +35,5 @@ public class Day01Solver {
             .sum()
         );
     }
+
 }
