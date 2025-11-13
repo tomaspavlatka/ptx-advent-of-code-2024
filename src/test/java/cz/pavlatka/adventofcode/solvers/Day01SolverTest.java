@@ -15,13 +15,27 @@ class Day01SolverTest {
     void testPart1() {
         var result = solver.part1(true);
 
-        assertThat(result).isEqualTo("11");
+        assertThat(result).isEqualTo(11);
     }
 
     @Test
     void solvePart1() {
         var result = solver.part1(false);
 
-        assertThat(result).isEqualTo("1320851");
+        assertThat(result).isEqualTo(1320851);
+    }
+
+    @Test
+    void testPart2() {
+        var result = solver.part2(true);
+
+        assertThat(result).isEqualTo(31);
+    }
+
+    @Test
+    void solvePart2() {
+        var result = solver.part2(false);
+
+        assertThat(result).isEqualTo(26859182);
     }
 }
