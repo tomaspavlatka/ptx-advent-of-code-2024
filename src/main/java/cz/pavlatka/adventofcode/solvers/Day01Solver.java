@@ -15,11 +15,11 @@ public class Day01Solver {
     private final ResourceLineReader reader;
 
     @SneakyThrows
-    public String solve(Integer part) {
+    public String solve(int part, boolean sample) {
         var left = new ArrayList<Integer>();
         var right = new ArrayList<Integer>();
 
-        reader.readLines(1, part).stream()
+        reader.readLines(1, sample).stream()
             .map(line -> Arrays.stream(line.trim().split("\\s+")).map(Integer::valueOf).toList())
             .forEach(pair -> {
                 left.add(pair.getFirst());

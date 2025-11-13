@@ -13,14 +13,14 @@ class Day01SolverTest {
 
     @Test
     void testPart01() {
-        var result = solver.solve(1);
+        var result = solver.solve(1, true);
 
         assertThat(result).isEqualTo("11");
     }
 
     @Test
     void testPart02() {
-        var result = solver.solve(2);
+        var result = solver.solve(2, false);
 
         assertThat(result).isEqualTo("1320851");
     }

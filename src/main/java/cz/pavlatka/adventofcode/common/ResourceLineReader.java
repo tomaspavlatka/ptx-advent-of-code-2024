@@ -12,8 +12,11 @@ import java.util.List;
 
 @Component
 public class ResourceLineReader {
-    public List<String> readLines(int day, int part) {
-        var input = "inputs/day" + day + "-" + part;
+    public List<String> readLines(int day, boolean sample) {
+        var input = "inputs/day" + day;
+        if (sample) {
+            input += ".sample";
+        }
 
         return readLines(input);
     }
