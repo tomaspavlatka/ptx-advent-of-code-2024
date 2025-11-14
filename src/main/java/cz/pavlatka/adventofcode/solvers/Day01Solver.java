@@ -16,7 +16,7 @@ public class Day01Solver {
     private final ResourceLineReader reader;
 
     public Integer part1(boolean sample) {
-        var groups = getGroups(sample);
+        var groups = getGroups(1, sample);
 
         return IntStream.range(0, groups._1().size())
             .map(i -> Math.abs(groups._1().get(i) - groups._2().get(i)))
@@ -24,7 +24,7 @@ public class Day01Solver {
     }
 
     public Integer part2(boolean sample) {
-        var groups = getGroups(sample);
+        var groups = getGroups(2, sample);
 
         return groups._1().stream().reduce(0, (a, b) ->  {
             var counts = groups._2().stream().filter(c -> c.equals(b)).toList().size();
@@ -34,11 +34,11 @@ public class Day01Solver {
         } );
     }
 
-    private Tuple<List<Integer>, List<Integer>> getGroups(boolean sample) {
+    private Tuple<List<Integer>, List<Integer>> getGroups(int part, boolean sample) {
         var left = new ArrayList<Integer>();
         var right = new ArrayList<Integer>();
 
-        reader.readLines(1, sample).stream()
+        reader.readLines(1, part, sample).stream()
                 .map(line -> Arrays.stream(line.trim().split("\\s+")).map(Integer::valueOf).toList())
                 .forEach(pair -> {
                     left.add(pair.getFirst());

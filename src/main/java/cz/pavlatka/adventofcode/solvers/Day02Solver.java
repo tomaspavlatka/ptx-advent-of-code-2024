@@ -14,7 +14,7 @@ public class Day02Solver {
     private final ResourceLineReader reader;
 
     public Integer part1(boolean sample) {
-        return getReports(sample)
+        return getReports(1, sample)
                 .stream()
                 .map(this::isSafe)
                 .filter(Boolean::booleanValue).toList().size();
@@ -22,7 +22,7 @@ public class Day02Solver {
     }
 
     public Integer part2(boolean sample) {
-        return getReports(sample)
+        return getReports(2, sample)
                 .stream()
                 .map(report -> isSafe(report) || canSafelyRemoveOne(report))
                 .filter(Boolean::booleanValue)
@@ -77,8 +77,8 @@ public class Day02Solver {
         return true;
     }
 
-    private List<List<Integer>> getReports(boolean sample) {
-        return reader.readLines(2, sample).stream()
+    private List<List<Integer>> getReports(int part, boolean sample) {
+        return reader.readLines(2, part, sample).stream()
                 .map(line -> Arrays.stream(line.trim().split("\\s+")).map(Integer::valueOf).toList())
                 .toList();
     }
