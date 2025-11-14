@@ -4,9 +4,9 @@ import cz.pavlatka.adventofcode.common.ResourceLineReader;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Component
@@ -22,7 +22,7 @@ public class Day04Solver {
             }
 
             return Stream.of("right", "left", "down", "up", "right-up", "right-down", "left-up", "left-down")
-                    .map(dir -> checkMaze(maze, entry.getKey(), dir))
+                    .map(dir -> checkMazeForXmas(maze, entry.getKey(), dir))
                     .map(bol -> bol ? 1 : 0)
                     .reduce(0, Integer::sum);
         }).reduce(0, Integer::sum);
@@ -32,7 +32,7 @@ public class Day04Solver {
         return maze.plan.get(new Coordinates(x, y));
     }
 
-    private boolean checkMaze(Maze maze, Coordinates coordinates, String direction) {
+    private boolean checkMazeForXmas(Maze maze, Coordinates coordinates, String direction) {
         try {
             var x = coordinates.x;
             var y = coordinates.y;
@@ -70,20 +70,58 @@ public class Day04Solver {
     }
 
     public Integer part2(boolean sample) {
-        return 0;
+        var maze = buildMaze(2, sample);
+        return maze.plan.entrySet().stream().map((entry) -> {
+            if (!entry.getValue().equals("A")) {
+                return 0;
+            }
+
+            return Stream.of("mas-mas", "mas-sam", "sam-sam", "sam-mas")
+                    .map(dir -> checkMazeForMas(maze, entry.getKey(), dir))
+                    .map(bol -> bol ? 1 : 0)
+                    .reduce(0, Integer::sum);
+        }).reduce(0, Integer::sum);
+    }
+
+    private boolean checkMazeForMas(Maze maze, Coordinates coordinates, String dir) {
+        try {
+            var x = coordinates.x;
+            var y = coordinates.y;
+
+            return switch (dir) {
+                case "mas-mas" -> getLetter(maze, x - 1, y - 1).equals("M")
+                        && getLetter(maze, x + 1, y + 1).equals("S")
+                        && getLetter(maze, x + 1, y - 1).equals("M")
+                        && getLetter(maze, x - 1, y + 1).equals("S");
+                case "mas-sam" -> getLetter(maze, x - 1, y - 1).equals("M")
+                        && getLetter(maze, x + 1, y + 1).equals("S")
+                        && getLetter(maze, x + 1, y - 1).equals("S")
+                        && getLetter(maze, x - 1, y + 1).equals("M");
+                case "sam-sam" -> getLetter(maze, x - 1, y - 1).equals("S")
+                        && getLetter(maze, x + 1, y + 1).equals("M")
+                        && getLetter(maze, x + 1, y - 1).equals("S")
+                        && getLetter(maze, x - 1, y + 1).equals("M");
+                case "sam-mas" -> getLetter(maze, x - 1, y - 1).equals("S")
+                        && getLetter(maze, x + 1, y + 1).equals("M")
+                        && getLetter(maze, x + 1, y - 1).equals("M")
+                        && getLetter(maze, x - 1, y + 1).equals("S");
+                default -> false;
+            };
+        } catch (Exception _ex) {
+            return false;
+        }
     }
 
     private Maze buildMaze(int part, boolean sample) {
-        var plan = new HashMap<Coordinates, String>();
-
         var lines = reader.readLines(4, part, sample);
-        for (int i = 0; i < lines.size(); i++) {
-            var letters = Arrays.asList(lines.get(i).split(""));
-            for (int j =0; j < letters.size(); j++) {
-                var coordinates = new Coordinates(i, j);
-                plan.put(coordinates, letters.get(j));
-            }
-        }
+        var plan = IntStream.range(0, lines.size())
+                .boxed()
+                .flatMap(r -> IntStream.range(0, lines.get(r).length())
+                    .mapToObj(c -> Map.entry(
+                            new Coordinates(r, c),
+                            String.valueOf(lines.get(r).charAt(c))
+                    ))
+                ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new Maze(plan);
     }
