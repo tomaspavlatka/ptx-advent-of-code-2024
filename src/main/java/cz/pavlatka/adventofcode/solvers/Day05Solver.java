@@ -22,7 +22,7 @@ public class Day05Solver {
     }
 
     public Integer part2(boolean sample) {
-        var printing = getPrinting(1, sample);
+        var printing = getPrinting(2, sample);
 
         return printing.pages.stream()
                 .filter(pages -> !pages.isEmpty())
