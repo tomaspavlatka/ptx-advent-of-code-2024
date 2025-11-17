@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @AllArgsConstructor
@@ -15,20 +18,7 @@ public class Day06Solver {
     public Integer part1(boolean sample) {
         var maze = buildMaze(1, sample);
 
-        var visited = new HashSet<Coordinates>();
-        visited.add(maze.guard.coordinates);
-        var nextMove = nextMove(maze.guard, maze.obstacles);
-        while (
-            nextMove.coordinates.x >= 0
-            && nextMove.coordinates.y >= 0
-            && nextMove.coordinates.x < maze.cols
-            && nextMove.coordinates.y < maze.rows
-        ) {
-            visited.add(nextMove.coordinates);
-            nextMove = nextMove(nextMove, maze.obstacles);
-        }
-
-        return visited.size();
+        return walkingPath(maze.guard, maze, Optional.empty()).orElse(new HashSet<>()).size();
     }
 
     private String nextDirection(String direction) {
@@ -40,10 +30,13 @@ public class Day06Solver {
         };
     }
 
-    private Guard nextMove(Guard guard, Set<Coordinates> obstacles) {
+    private Guard nextMove(Guard guard, Set<Coordinates> obstacles, Optional<Coordinates> imaginaryObstacle) {
         var dir = guard.dir;
         var next = nextPlannedMove(guard, dir);
-        while (obstacles.contains(next.coordinates)) {
+        while (
+                obstacles.contains(next.coordinates)
+                || (imaginaryObstacle.isPresent() && imaginaryObstacle.get().equals(next.coordinates))
+        ) {
             dir = nextDirection(dir);
             next = nextPlannedMove(guard, dir);
         }
@@ -61,7 +54,40 @@ public class Day06Solver {
     }
 
     public Integer part2(boolean sample) {
-        return 0;
+        var maze = buildMaze(2, sample);
+
+        return IntStream.range(0, maze.rows)
+                .boxed()
+                .map(row -> IntStream.range(0, maze.cols)
+                    .boxed()
+                    .map(col -> walkingPath(maze.guard, maze, Optional.of(new Coordinates(col, row))))
+                    .filter(Optional::isEmpty)
+                    .toList()
+                    .size()
+                ).reduce(0, Integer::sum);
+
+    }
+
+    private Optional<Set<Coordinates>> walkingPath(Guard guard, Maze maze, Optional<Coordinates> imaginaryObstacle) {
+        var visited = new HashSet<Guard>();
+        visited.add(guard);
+        var nextMove = nextMove(guard, maze.obstacles, imaginaryObstacle);
+        while (
+                nextMove.coordinates.x >= 0
+                        && nextMove.coordinates.y >= 0
+                        && nextMove.coordinates.x < maze.cols
+                        && nextMove.coordinates.y < maze.rows
+        ) {
+            // If we have already been there, we are in the loop
+            if (visited.contains(nextMove)) {
+                return Optional.empty();
+            }
+
+            visited.add(nextMove);
+            nextMove = nextMove(nextMove, maze.obstacles, imaginaryObstacle);
+        }
+
+        return Optional.of(visited.stream().map(node -> node.coordinates).collect(Collectors.toSet()));
     }
 
     private Maze buildMaze(int part, boolean sample) {
