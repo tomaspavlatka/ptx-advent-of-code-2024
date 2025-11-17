@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Component
 @AllArgsConstructor
@@ -18,7 +17,7 @@ public class Day06Solver {
     public Integer part1(boolean sample) {
         var maze = buildMaze(1, sample);
 
-        return walkingPath(maze.guard, maze, Optional.empty()).orElse(new HashSet<>()).size();
+        return walkingPath(maze.guard, maze, null).orElse(new HashSet<>()).size();
     }
 
     private String nextDirection(String direction) {
@@ -30,12 +29,12 @@ public class Day06Solver {
         };
     }
 
-    private Guard nextMove(Guard guard, Set<Coordinates> obstacles, Optional<Coordinates> imaginaryObstacle) {
+    private Guard nextMove(Guard guard, Set<Coordinates> obstacles, Coordinates imaginaryObstacle) {
         var dir = guard.dir;
         var next = nextPlannedMove(guard, dir);
         while (
                 obstacles.contains(next.coordinates)
-                || (imaginaryObstacle.isPresent() && imaginaryObstacle.get().equals(next.coordinates))
+                || (imaginaryObstacle != null && imaginaryObstacle.equals(next.coordinates))
         ) {
             dir = nextDirection(dir);
             next = nextPlannedMove(guard, dir);
@@ -56,19 +55,15 @@ public class Day06Solver {
     public Integer part2(boolean sample) {
         var maze = buildMaze(2, sample);
 
-        return IntStream.range(0, maze.rows)
-                .boxed()
-                .map(row -> IntStream.range(0, maze.cols)
-                    .boxed()
-                    .map(col -> walkingPath(maze.guard, maze, Optional.of(new Coordinates(col, row))))
-                    .filter(Optional::isEmpty)
-                    .toList()
-                    .size()
-                ).reduce(0, Integer::sum);
-
+        return walkingPath(maze.guard, maze, null).orElse(new HashSet<>())
+                .stream()
+                .map(coord -> walkingPath(maze.guard, maze, coord))
+                .filter(Optional::isEmpty)
+                .toList()
+                .size();
     }
 
-    private Optional<Set<Coordinates>> walkingPath(Guard guard, Maze maze, Optional<Coordinates> imaginaryObstacle) {
+    private Optional<Set<Coordinates>> walkingPath(Guard guard, Maze maze, Coordinates imaginaryObstacle) {
         var visited = new HashSet<Guard>();
         visited.add(guard);
         var nextMove = nextMove(guard, maze.obstacles, imaginaryObstacle);
