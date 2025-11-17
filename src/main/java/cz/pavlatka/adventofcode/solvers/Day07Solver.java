@@ -18,13 +18,13 @@ public class Day07Solver {
         return reader.readLines(7, 1, sample)
                 .stream()
                 .map(this::toEquation)
-                .filter(this::isValid)
+                .filter(equation -> isValid(equation, List.of("+", "*")))
                 .map(eq -> eq.result)
                 .reduce(0L, Long::sum);
     }
 
-    private Boolean isValid(Equation equation) {
-        var configurations = configurations(List.of("+", "*"), equation.numbers.size());
+    private Boolean isValid(Equation equation, List<String> operations) {
+        var configurations = configurations(operations, equation.numbers.size());
 
         var data = configurations.stream().map(configuration -> {
             long sum = -1;
@@ -37,9 +37,16 @@ public class Day07Solver {
 
                     if (operation.equals("+")) {
                         sum += number;
-                    } else {
+                    } else if (operation.equals("*")) {
                         sum *= number;
+                    } else {
+                        var value = sum + String.valueOf(number);
+                        sum = Long.parseLong(value);
                     }
+                }
+
+                if (sum > equation.result) {
+                    return -1;
                 }
             }
 
@@ -51,17 +58,17 @@ public class Day07Solver {
         return !data.isEmpty();
     }
 
-    public static List<List<String>> configurations(List<String> ops, int n) {
+    public static List<List<String>> configurations(List<String> operations, int n) {
         if (n == 0) {
-            return List.of(new ArrayList<>()); // one empty combination
+            return List.of(new ArrayList<>());
         }
 
         List<List<String>> result = new ArrayList<>();
 
-        for (String op : ops) {
-            var tail = configurations(ops, n - 1).stream().map(conf -> {
+        for (String operation : operations) {
+            var tail = configurations(operations, n - 1).stream().map(conf -> {
                 var c = new ArrayList<String>();
-                c.add(op);
+                c.add(operation);
                 c.addAll(conf);
                 return c;
             }).toList();
@@ -80,7 +87,12 @@ public class Day07Solver {
     }
 
     public Long part2(boolean sample) {
-        return 0L;
+        return reader.readLines(7, 2, sample)
+                .stream()
+                .map(this::toEquation)
+                .filter(equation -> isValid(equation, List.of("+", "*", "||")))
+                .map(eq -> eq.result)
+                .reduce(0L, Long::sum);
     }
 
     private record Equation(Long result, List<Long> numbers) {}
