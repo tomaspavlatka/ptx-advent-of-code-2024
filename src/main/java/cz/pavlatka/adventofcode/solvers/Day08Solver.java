@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -16,46 +15,27 @@ public class Day08Solver {
 
     public Integer part1(boolean sample) {
         var maze = getMaze(1, sample);
+        Set<Coordinates> antinodes = new HashSet<>();
 
-        return maze.antennas.entrySet().stream().map(entry -> {
-            if (entry.getKey().equals(".")) {
-                return new HashSet<Coordinates>();
+        for (var entry: maze.antennas.entrySet()) {
+            if (entry.getKey().equals(".")) continue;
+
+            var list = new ArrayList<>(entry.getValue());
+            for (int i = 0; i < list.size(); i++) {
+                for (int j = i + 1; j < list.size(); j++) {
+                    var a = list.get(i);
+                    var b = list.get(j);
+
+                    int dr = b.row - a.row;
+                    int dc = b.col - a.col;
+
+                    antinodes.add(new Coordinates(a.row - dr, a.col - dc));
+                    antinodes.add(new Coordinates(b.row + dr, b.col + dc));
+                }
             }
+        }
 
-            var coordinates = entry.getValue().stream().toList();
-            return IntStream.range(0, coordinates.size())
-                .boxed()
-                .map(idx -> {
-                    var anti = new HashSet<Coordinates>();
-                    var antenna = coordinates.get(idx);
-
-                    coordinates.forEach(coord -> {
-                        var rowDiff = coord.row - antenna.row;
-                        var colDiff = coord.col - antenna.col;
-
-                        if (rowDiff == 0) { // same line
-                            if (colDiff > 0) {  // we process from left to right, so rest we ignore
-                                anti.add(new Coordinates(antenna.row, antenna.col - colDiff));
-                                anti.add(new Coordinates(antenna.row, coord.col + colDiff));
-                            }
-                        } else if (rowDiff > 0) { // we process from top to bottom
-                            anti.add(new Coordinates(antenna.row - rowDiff, antenna.col - colDiff));
-                            anti.add(new Coordinates(coord.row + rowDiff, coord.col + colDiff));
-                        }
-                    });
-
-                    return anti;
-                })
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
-        })
-        .flatMap(Set::stream)
-        .collect(Collectors.toSet())
-        .stream()
-        .filter(coord -> insideMaze(coord, maze))
-        .peek(System.out::println)
-        .collect(Collectors.toSet())
-        .size();
+        return (int) antinodes.stream().filter(c -> insideMaze(c, maze)).count();
     }
 
     private boolean insideMaze(Coordinates coordinates, Maze maze) {
