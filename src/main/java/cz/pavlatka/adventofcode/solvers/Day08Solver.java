@@ -42,7 +42,42 @@ public class Day08Solver {
         return coordinates.row < maze.rows() && coordinates.col < maze.cols() && coordinates.row >= 0 && coordinates.col >= 0;
     }
     public Integer part2(boolean sample) {
-        return 0;
+        var maze = getMaze(2, sample);
+        Set<Coordinates> antinodes = new HashSet<>();
+
+        for (var entry: maze.antennas.entrySet()) {
+            if (entry.getKey().equals(".")) continue;
+
+            var list = new ArrayList<>(entry.getValue());
+            for (int i = 0; i < list.size(); i++) {
+                for (int j = i + 1; j < list.size(); j++) {
+                    var a = list.get(i);
+                    var b = list.get(j);
+
+                    int dr = b.row - a.row;
+                    int dc = b.col - a.col;
+
+                    antinodes.add(a);
+                    antinodes.add(b);
+
+                    var coordinates = new Coordinates(a.row - dr, a.col - dc);
+                    while (insideMaze(coordinates, maze)) {
+                        antinodes.add(coordinates);
+                        coordinates = new Coordinates(coordinates.row - dr, coordinates.col - dc);
+                    }
+
+                    coordinates = new Coordinates(b.row + dr, b.col + dc);
+                    while (insideMaze(coordinates, maze)) {
+                        antinodes.add(coordinates);
+                        coordinates = new Coordinates(coordinates.row + dr, coordinates.col + dc);
+                    }
+                }
+            }
+        }
+
+        System.out.println("antinodes = " + antinodes.size());
+
+        return (int) antinodes.stream().filter(c -> insideMaze(c, maze)).count();
     }
 
     private Maze getMaze(int part, boolean sample) {
